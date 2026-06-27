@@ -1,0 +1,10 @@
+﻿node_modules
+client/node_modules
+server/node_modules
+ai-service
+.env
+server/.env
+client/.env
+uploads
+dist
+*.log
