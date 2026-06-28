@@ -1,17 +1,15 @@
 const express = require('express');
 const router = express.Router();
-const OpenAI = require('openai');
 const { body, validationResult } = require('express-validator');
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
+const { verifyToken } = require('../middleware/auth');
+const OpenAI = require('openai');
 
 // Interview feedback endpoint
-router.post('/interview/feedback', [
+router.post('/interview/feedback', verifyToken, [
   body('questions').isArray(),
   body('answers').isArray()
 ], async (req, res) => {
+  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY || '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' });
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -34,7 +32,7 @@ Please provide:
 3. Specific suggestions for improvement`;
 
     const response = await openai.chat.completions.create({
-      model: 'gpt-4',
+      model: 'gpt-4o-mini',
       messages: [
         { role: 'system', content: 'You are an expert interviewer providing constructive feedback.' },
         { role: 'user', content: prompt }
@@ -55,10 +53,11 @@ Please provide:
 });
 
 // Resume review endpoint
-router.post('/resume/review', [
+router.post('/resume/review', verifyToken, [
   body('resume_text').notEmpty(),
   body('job_description').notEmpty()
 ], async (req, res) => {
+  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY || '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' });
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -82,7 +81,7 @@ Please provide:
 4. Specific suggestions`;
 
     const response = await openai.chat.completions.create({
-      model: 'gpt-4',
+      model: 'gpt-4o-mini',
       messages: [
         { role: 'system', content: 'You are an expert HR professional providing resume feedback.' },
         { role: 'user', content: prompt }
@@ -100,10 +99,11 @@ Please provide:
 });
 
 // Coding help endpoint
-router.post('/coding/help', [
+router.post('/coding/help', verifyToken, [
   body('code').notEmpty(),
   body('problem').notEmpty()
 ], async (req, res) => {
+  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY || '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' });
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -123,7 +123,7 @@ ${code}
 Provide guidance without giving the complete solution. Help them understand the approach.`;
 
     const response = await openai.chat.completions.create({
-      model: 'gpt-4',
+      model: 'gpt-4o-mini',
       messages: [
         { role: 'system', content: 'You are a helpful coding tutor.' },
         { role: 'user', content: prompt }

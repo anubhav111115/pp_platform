@@ -1,9 +1,8 @@
 const express = require('express');
-const { OpenAI } = require('openai');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 const { verifyToken } = require('../middleware/auth');
 
 const router = express.Router();
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 function parseJsonContent(content) {
   try {
@@ -19,6 +18,8 @@ function parseJsonContent(content) {
 }
 
 router.post('/company', verifyToken, async (req, res) => {
+  const genAI = new GoogleGenerativeAI('AQ.Ab8RN6JDp2G8PFWNdRVTRnMfZB4kyUQ1YTu-9sJ-Lcf7fhgjIQ');
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-lite' });
   try {
     const company = String(req.body.company || '').trim();
     const role = String(req.body.role || '').trim();
@@ -27,23 +28,13 @@ router.post('/company', verifyToken, async (req, res) => {
       return res.status(400).json({ message: 'company and role are required' });
     }
 
-    const response = await openai.chat.completions.create({
-      model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
-      messages: [
-        {
-          role: 'system',
-          content: "You are a placement expert. Return ONLY JSON: { overview: string, interview_rounds: [ { round: string, description: string, tips: string[] } ], commonly_asked_topics: string[], recommended_resources: [ { title: string, url: string, type: 'video'|'article'|'practice' } ], difficulty: 'easy'|'medium'|'hard', avg_ctc: string, preparation_time: string, insider_tips: string[] }"
-        },
-        {
-          role: 'user',
-          content: `Give complete interview preparation guide for ${role} at ${company}`
-        }
-      ],
-      response_format: { type: 'json_object' },
-      temperature: 0.6
-    });
+    const prompt = `You are a placement expert. Return ONLY JSON: { overview: string, interview_rounds: [ { round: string, description: string, tips: string[] } ], commonly_asked_topics: string[], recommended_resources: [ { title: string, url: string, type: 'video'|'article'|'practice' } ], difficulty: 'easy'|'medium'|'hard', avg_ctc: string, preparation_time: string, insider_tips: string[] }
+    
+Give complete interview preparation guide for ${role} at ${company}`;
 
-    const parsed = parseJsonContent(response.choices[0].message.content || '{}');
+    const result = await model.generateContent(prompt);
+    const text = result.response.text();
+    const parsed = parseJsonContent(text.replace(/```json|```/g, '').trim() || '{}');
 
     res.json({
       overview: String(parsed.overview || ''),
@@ -62,6 +53,8 @@ router.post('/company', verifyToken, async (req, res) => {
 });
 
 router.post('/dsa-recommendations', verifyToken, async (req, res) => {
+  const genAI = new GoogleGenerativeAI('AQ.Ab8RN6JDp2G8PFWNdRVTRnMfZB4kyUQ1YTu-9sJ-Lcf7fhgjIQ');
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-lite' });
   try {
     const weakTopics = Array.isArray(req.body.weakTopics) ? req.body.weakTopics.filter(Boolean) : [];
     const targetCompany = String(req.body.targetCompany || '').trim();
@@ -71,23 +64,13 @@ router.post('/dsa-recommendations', verifyToken, async (req, res) => {
       return res.status(400).json({ message: 'targetCompany and daysAvailable are required' });
     }
 
-    const response = await openai.chat.completions.create({
-      model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
-      messages: [
-        {
-          role: 'system',
-          content: "You are a DSA expert. Return ONLY JSON: { study_plan: [ { day: number, topic: string, problems: [ { name: string, difficulty: string, leetcode_number: number, why_important: string } ] } ], priority_topics: string[], daily_target: number }"
-        },
-        {
-          role: 'user',
-          content: `Create ${daysAvailable}-day DSA study plan for ${targetCompany}. Weak areas: ${weakTopics.join(', ')}`
-        }
-      ],
-      response_format: { type: 'json_object' },
-      temperature: 0.5
-    });
+    const prompt = `You are a DSA expert. Return ONLY JSON: { study_plan: [ { day: number, topic: string, problems: [ { name: string, difficulty: string, leetcode_number: number, why_important: string } ] } ], priority_topics: string[], daily_target: number }
+    
+Create ${daysAvailable}-day DSA study plan for ${targetCompany}. Weak areas: ${weakTopics.join(', ')}`;
 
-    const parsed = parseJsonContent(response.choices[0].message.content || '{}');
+    const result = await model.generateContent(prompt);
+    const text = result.response.text();
+    const parsed = parseJsonContent(text.replace(/```json|```/g, '').trim() || '{}');
 
     res.json({
       study_plan: Array.isArray(parsed.study_plan) ? parsed.study_plan : [],

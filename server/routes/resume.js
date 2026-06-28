@@ -8,7 +8,7 @@ const { body, validationResult } = require('express-validator');
 const Resume = require('../models/Resume');
 const User = require('../models/User');
 const { verifyToken } = require('../middleware/auth');
-const OpenAI = require('openai');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
@@ -25,7 +25,7 @@ const storage = multer.diskStorage({
   }
 });
 
-const upload = multer({ 
+const upload = multer({
   storage: storage,
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
   fileFilter: (req, file, cb) => {
@@ -53,7 +53,7 @@ router.post('/upload', verifyToken, upload.single('resume'), async (req, res) =>
 
     await resume.save();
 
-    res.json({ 
+    res.json({
       resumeId: resume._id,
       filename: resume.originalName
     });
@@ -81,22 +81,18 @@ router.post('/analyze/:resumeId', verifyToken, async (req, res) => {
     const data = await pdfParse(dataBuffer);
     const resumeText = data.text;
 
-    // Send to OpenAI
-    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-    
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [
-        { 
-          role: "system", 
-          content: "You are an expert ATS resume analyzer. Analyze the resume text and return ONLY valid JSON with these exact keys: ats_score (number 0-100), strengths (array of 4 strings), weaknesses (array of 4 strings), missing_keywords (array of 6 strings), suggestions (array of 5 actionable strings), summary (string, 2 sentences), top_skills (array of 6 strings)" 
-        },
-        { role: "user", content: resumeText }
-      ],
-      response_format: { type: "json_object" }
-    });
+    // Send to Gemini
+    const genAI = new GoogleGenerativeAI('AQ.Ab8RN6JDp2G8PFWNdRVTRnMfZB4kyUQ1YTu-9sJ-Lcf7fhgjIQ');
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-lite' });
 
-    const analysisResult = JSON.parse(completion.choices[0].message.content);
+    const prompt = `You are an expert ATS resume analyzer. Analyze the resume text and return ONLY valid JSON with these exact keys: ats_score (number 0-100), strengths (array of 4 strings), weaknesses (array of 4 strings), missing_keywords (array of 6 strings), suggestions (array of 5 actionable strings), summary (string, 2 sentences), top_skills (array of 6 strings).
+
+Resume text:
+${resumeText}`;
+
+    const result = await model.generateContent(prompt);
+    const text = result.response.text();
+    const analysisResult = JSON.parse(text.replace(/```json|```/g, '').trim());
 
     // Save analysis to DB
     resume.analysisResult = analysisResult;

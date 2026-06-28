@@ -1,16 +1,17 @@
 const express = require('express');
-const { OpenAI } = require('openai');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 const Chat = require('../models/Chat');
 const { verifyToken } = require('../middleware/auth');
 
 const router = express.Router();
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 function buildChatTitle(message) {
   return String(message || 'New Chat').trim().slice(0, 60) || 'New Chat';
 }
 
 router.post('/message', verifyToken, async (req, res) => {
+  const genAI = new GoogleGenerativeAI('AQ.Ab8RN6JDp2G8PFWNdRVTRnMfZB4kyUQ1YTu-9sJ-Lcf7fhgjIQ');
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-lite' });
   let chat;
   let assistantResponse = '';
 
@@ -65,27 +66,20 @@ router.post('/message', verifyToken, async (req, res) => {
 
     res.write(`data: ${JSON.stringify({ type: 'meta', chatId: String(chat._id), title: chat.title })}\n\n`);
 
-    const stream = await openai.chat.completions.create({
-      model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
-      stream: true,
-      messages: [
-        {
-          role: 'system',
-          content: `You are PrepAI, an expert AI career coach for software engineering placements. Help with: DSA prep, resume tips, interview strategies, company-specific prep, behavioral answers (STAR format), salary negotiation, career advice. Be concise and practical. User context: ${contextSummary}`
-        },
-        ...conversationHistory,
-        { role: 'user', content: message }
-      ]
-    });
+    const systemPrompt = `You are PrepAI, an expert AI career coach for software engineering placements. Help with: DSA prep, resume tips, interview strategies, company-specific prep, behavioral answers (STAR format), salary negotiation, career advice. Be concise and practical. User context: ${contextSummary}`;
+    const formattedHistory = conversationHistory.map(h => `${h.role === 'user' ? 'User' : 'Assistant'}: ${h.content}`).join('\n');
+    const prompt = `${systemPrompt}\n\nConversation History:\n${formattedHistory}\n\nUser: ${message}\nAssistant:`;
 
-    for await (const chunk of stream) {
-      const token = chunk.choices?.[0]?.delta?.content || '';
+    const resultStream = await model.generateContentStream(prompt);
+
+    for await (const chunk of resultStream.stream) {
+      const token = chunk.text();
       if (!token) {
         continue;
       }
 
       assistantResponse += token;
-      res.write(`data: ${JSON.stringify({ type: 'token', token })}\n\n`);
+      res.write(`data: ${JSON.stringify({ type: 'token', token, content: token })}\n\n`);
     }
 
     chat.messages.push({

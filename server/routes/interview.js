@@ -1,14 +1,13 @@
 const fs = require('fs');
 const express = require('express');
 const pdfParse = require('pdf-parse');
-const { OpenAI } = require('openai');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 const Interview = require('../models/Interview');
 const Resume = require('../models/Resume');
 const User = require('../models/User');
 const { verifyToken } = require('../middleware/auth');
 
 const router = express.Router();
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const VALID_DIFFICULTIES = ['easy', 'medium', 'hard'];
 const VALID_TYPES = ['behavioral', 'technical', 'hr'];
 
@@ -57,26 +56,24 @@ async function getLatestResumeText(userId) {
 }
 
 async function generateQuestions({ resumeText, company, role, difficulty }) {
-  const completion = await openai.chat.completions.create({
-    model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
-    messages: [
-      {
-        role: 'system',
-        content: `Generate 5 realistic interview questions for a ${role} position at ${company}. Base them on this resume. Mix behavioral and technical. Return JSON array of objects with: question, type (behavioral/technical/hr), difficulty (easy/medium/hard)`
-      },
-      {
-        role: 'user',
-        content: `Role: ${role}\nCompany: ${company}\nDifficulty: ${difficulty}\nResume:\n${resumeText || 'No resume provided.'}`
-      }
-    ],
-    temperature: 0.7
-  });
+  const genAI = new GoogleGenerativeAI('AQ.Ab8RN6JDp2G8PFWNdRVTRnMfZB4kyUQ1YTu-9sJ-Lcf7fhgjIQ');
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-lite' });
 
-  const parsed = parseJsonContent(completion.choices[0].message.content || '[]');
+  const prompt = `Generate 5 realistic interview questions for a ${role} position at ${company}. Base them on this resume. Mix behavioral and technical. Return JSON array of objects with: question, type (behavioral/technical/hr), difficulty (easy/medium/hard).
+  
+Role: ${role}
+Company: ${company}
+Difficulty: ${difficulty}
+Resume:
+${resumeText || 'No resume provided.'}`;
+
+  const result = await model.generateContent(prompt);
+  const text = result.response.text();
+  const parsed = parseJsonContent(text.replace(/```json|```/g, '').trim() || '[]');
   const questions = Array.isArray(parsed) ? parsed : parsed.questions;
 
   if (!Array.isArray(questions)) {
-    throw new Error('OpenAI did not return a valid questions array');
+    throw new Error('Gemini did not return a valid questions array');
   }
 
   return questions.slice(0, 5).map((item) => ({
@@ -87,23 +84,17 @@ async function generateQuestions({ resumeText, company, role, difficulty }) {
 }
 
 async function evaluateAnswer({ question, answer, role }) {
-  const completion = await openai.chat.completions.create({
-    model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
-    messages: [
-      {
-        role: 'system',
-        content: `Evaluate the answer for a ${role} role. Return only valid JSON with keys: score, feedback, better_answer_hint, keywords_used, keywords_missed.`
-      },
-      {
-        role: 'user',
-        content: `Question: ${question}\nAnswer: ${answer}`
-      }
-    ],
-    response_format: { type: 'json_object' },
-    temperature: 0.4
-  });
+  const genAI = new GoogleGenerativeAI('AQ.Ab8RN6JDp2G8PFWNdRVTRnMfZB4kyUQ1YTu-9sJ-Lcf7fhgjIQ');
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-lite' });
 
-  const parsed = parseJsonContent(completion.choices[0].message.content || '{}');
+  const prompt = `Evaluate the answer for a ${role} role. Return only valid JSON with keys: score, feedback, better_answer_hint, keywords_used, keywords_missed.
+  
+Question: ${question}
+Answer: ${answer}`;
+
+  const result = await model.generateContent(prompt);
+  const text = result.response.text();
+  const parsed = parseJsonContent(text.replace(/```json|```/g, '').trim() || '{}');
 
   return {
     score: Math.max(1, Math.min(10, Number(parsed.score) || 1)),
