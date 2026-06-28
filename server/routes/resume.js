@@ -82,7 +82,7 @@ router.post('/analyze/:resumeId', verifyToken, async (req, res) => {
     const resumeText = data.text;
 
     // Send to Gemini
-    const genAI = new GoogleGenerativeAI('AQ.Ab8RN6JDp2G8PFWNdRVTRnMfZB4kyUQ1YTu-9sJ-Lcf7fhgjIQ');
+    const genAI = new GoogleGenerativeAI('process.env.GEMINI_API_KEY');
     const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-lite' });
 
     const prompt = `You are an expert ATS resume analyzer. Analyze the resume text and return ONLY valid JSON with these exact keys: ats_score (number 0-100), strengths (array of 4 strings), weaknesses (array of 4 strings), missing_keywords (array of 6 strings), suggestions (array of 5 actionable strings), summary (string, 2 sentences), top_skills (array of 6 strings).

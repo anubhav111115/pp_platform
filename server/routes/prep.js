@@ -18,7 +18,7 @@ function parseJsonContent(content) {
 }
 
 router.post('/company', verifyToken, async (req, res) => {
-  const genAI = new GoogleGenerativeAI('AQ.Ab8RN6JDp2G8PFWNdRVTRnMfZB4kyUQ1YTu-9sJ-Lcf7fhgjIQ');
+  const genAI = new GoogleGenerativeAI('process.env.GEMINI_API_KEY');
   const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-lite' });
   try {
     const company = String(req.body.company || '').trim();
@@ -53,7 +53,7 @@ Give complete interview preparation guide for ${role} at ${company}`;
 });
 
 router.post('/dsa-recommendations', verifyToken, async (req, res) => {
-  const genAI = new GoogleGenerativeAI('AQ.Ab8RN6JDp2G8PFWNdRVTRnMfZB4kyUQ1YTu-9sJ-Lcf7fhgjIQ');
+  const genAI = new GoogleGenerativeAI('process.env.GEMINI_API_KEY');
   const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-lite' });
   try {
     const weakTopics = Array.isArray(req.body.weakTopics) ? req.body.weakTopics.filter(Boolean) : [];

@@ -56,7 +56,7 @@ async function getLatestResumeText(userId) {
 }
 
 async function generateQuestions({ resumeText, company, role, difficulty }) {
-  const genAI = new GoogleGenerativeAI('AQ.Ab8RN6JDp2G8PFWNdRVTRnMfZB4kyUQ1YTu-9sJ-Lcf7fhgjIQ');
+  const genAI = new GoogleGenerativeAI('process.env.GEMINI_API_KEY');
   const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-lite' });
 
   const prompt = `Generate 5 realistic interview questions for a ${role} position at ${company}. Base them on this resume. Mix behavioral and technical. Return JSON array of objects with: question, type (behavioral/technical/hr), difficulty (easy/medium/hard).
@@ -84,7 +84,7 @@ ${resumeText || 'No resume provided.'}`;
 }
 
 async function evaluateAnswer({ question, answer, role }) {
-  const genAI = new GoogleGenerativeAI('AQ.Ab8RN6JDp2G8PFWNdRVTRnMfZB4kyUQ1YTu-9sJ-Lcf7fhgjIQ');
+  const genAI = new GoogleGenerativeAI('process.env.GEMINI_API_KEY');
   const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-lite' });
 
   const prompt = `Evaluate the answer for a ${role} role. Return only valid JSON with keys: score, feedback, better_answer_hint, keywords_used, keywords_missed.

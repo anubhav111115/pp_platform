@@ -10,7 +10,7 @@ function buildChatTitle(message) {
 }
 
 router.post('/message', verifyToken, async (req, res) => {
-  const genAI = new GoogleGenerativeAI('AQ.Ab8RN6JDp2G8PFWNdRVTRnMfZB4kyUQ1YTu-9sJ-Lcf7fhgjIQ');
+  const genAI = new GoogleGenerativeAI('process.env.GEMINI_API_KEY');
   const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-lite' });
   let chat;
   let assistantResponse = '';
