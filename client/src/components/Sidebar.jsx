@@ -39,16 +39,15 @@ function Sidebar({ isOpen, setIsOpen }) {
     <>
       {/* Mobile sidebar */}
       <div
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 transform transition-transform duration-300 ease-in-out lg:hidden ${
-          isOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 transform transition-transform duration-300 ease-in-out lg:hidden ${isOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}
       >
         <div className="flex items-center justify-between p-4 border-b border-gray-200">
           <div className="flex items-center gap-2">
             <h1 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
               PrepAI
             </h1>
-            <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">v1.0</span>
+
           </div>
           <button onClick={() => setIsOpen(false)} className="p-2 hover:bg-gray-100 rounded-lg">
             <X className="w-5 h-5 text-gray-600" />
@@ -64,11 +63,10 @@ function Sidebar({ isOpen, setIsOpen }) {
                 key={item.path}
                 to={item.path}
                 onClick={() => setIsOpen(false)}
-                className={`flex items-center gap-3 px-4 py-3 mx-2 rounded-lg transition-colors ${
-                  isActive
+                className={`flex items-center gap-3 px-4 py-3 mx-2 rounded-lg transition-colors ${isActive
                     ? 'bg-indigo-50 text-indigo-700 border-l-4 border-indigo-600'
                     : 'text-gray-700 hover:bg-gray-100'
-                }`}
+                  }`}
               >
                 <Icon className="w-5 h-5" />
                 <span className="font-medium">{item.label}</span>
@@ -116,11 +114,10 @@ function Sidebar({ isOpen, setIsOpen }) {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center gap-3 px-4 py-3 mx-2 rounded-lg transition-colors ${
-                  isActive
+                className={`flex items-center gap-3 px-4 py-3 mx-2 rounded-lg transition-colors ${isActive
                     ? 'bg-indigo-50 text-indigo-700 border-l-4 border-indigo-600'
                     : 'text-gray-700 hover:bg-gray-100'
-                }`}
+                  }`}
               >
                 <Icon className="w-5 h-5" />
                 <span className="font-medium">{item.label}</span>
