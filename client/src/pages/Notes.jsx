@@ -43,7 +43,7 @@ function Notes() {
     setSaveState('saving');
     const timeoutId = setTimeout(() => {
       saveNote(draft);
-    }, 500);
+    }, 800);
 
     return () => clearTimeout(timeoutId);
   }, [draft, activeNoteId]);
@@ -110,7 +110,18 @@ function Notes() {
           return new Date(b.updatedAt) - new Date(a.updatedAt);
         })
       );
-      setDraft(hydratedNote);
+
+      // Only sync the draft back if the user hasn't kept typing past this save
+      setDraft((current) => {
+        if (!current || current._id !== hydratedNote._id) {
+          return current;
+        }
+        return {
+          ...current,
+          _id: hydratedNote._id,
+          updatedAt: hydratedNote.updatedAt
+        };
+      });
       setSaveState('saved');
     } catch (error) {
       setSaveState('idle');
@@ -197,6 +208,24 @@ function Notes() {
     setSaveState('idle');
   }
 
+  function handleContentChange(value) {
+    setDraft((prev) => {
+      if (!prev) {
+        return prev;
+      }
+      // Guard: ignore a sudden jump to empty content if there was
+      // substantial content a moment ago — this filters out the
+      // MDEditor's occasional empty-value flash on certain keystrokes.
+      const incoming = value || '';
+      const wasSubstantial = (prev.content || '').trim().length > 5;
+      const nowEmpty = incoming.trim().length === 0;
+      if (wasSubstantial && nowEmpty) {
+        return prev;
+      }
+      return { ...prev, content: incoming };
+    });
+  }
+
   const filteredNotes = useMemo(() => {
     const query = search.trim().toLowerCase();
     if (!query) {
@@ -280,9 +309,8 @@ function Notes() {
                   key={note._id}
                   type="button"
                   onClick={() => selectNote(note)}
-                  className={`mb-2 w-full rounded-xl border p-3 text-left transition ${
-                    activeNoteId === note._id ? 'border-indigo-300 bg-white shadow-sm' : 'border-transparent bg-transparent hover:bg-white'
-                  }`}
+                  className={`mb-2 w-full rounded-xl border p-3 text-left transition ${activeNoteId === note._id ? 'border-indigo-300 bg-white shadow-sm' : 'border-transparent bg-transparent hover:bg-white'
+                    }`}
                 >
                   <div className="flex items-start justify-between gap-2">
                     <p className="line-clamp-1 font-semibold text-gray-900">{note.title}</p>
@@ -359,7 +387,7 @@ function Notes() {
                 <div className="min-h-0 flex-1 overflow-y-auto p-4" data-color-mode="light">
                   <MDEditor
                     value={draft.content}
-                    onChange={(value) => setDraft((prev) => ({ ...prev, content: value || '' }))}
+                    onChange={handleContentChange}
                     height="100%"
                   />
                 </div>
