@@ -8,7 +8,9 @@ const { body, validationResult } = require('express-validator');
 const Resume = require('../models/Resume');
 const User = require('../models/User');
 const { verifyToken } = require('../middleware/auth');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const Groq = require('groq-sdk');
+
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
@@ -81,17 +83,18 @@ router.post('/analyze/:resumeId', verifyToken, async (req, res) => {
     const data = await pdfParse(dataBuffer);
     const resumeText = data.text;
 
-    // Send to Gemini
-    const genAI = new GoogleGenerativeAI('process.env.GEMINI_API_KEY');
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-lite' });
-
-    const prompt = `You are an expert ATS resume analyzer. Analyze the resume text and return ONLY valid JSON with these exact keys: ats_score (number 0-100), strengths (array of 4 strings), weaknesses (array of 4 strings), missing_keywords (array of 6 strings), suggestions (array of 5 actionable strings), summary (string, 2 sentences), top_skills (array of 6 strings).
+    const prompt = `You are an expert ATS resume analyzer. Analyze the resume text and return ONLY valid JSON with these exact keys: ats_score (number 0-100), strengths (array of 4 strings), weaknesses (array of 4 strings), missing_keywords (array of 6 strings), suggestions (array of 5 actionable strings), summary (string, 2 sentences), top_skills (array of 6 strings). Do not include any text outside the JSON.
 
 Resume text:
 ${resumeText}`;
 
-    const result = await model.generateContent(prompt);
-    const text = result.response.text();
+    const completion = await groq.chat.completions.create({
+      messages: [{ role: 'user', content: prompt }],
+      model: 'llama-3.3-70b-versatile',
+      response_format: { type: 'json_object' }
+    });
+
+    const text = completion.choices[0].message.content;
     const analysisResult = JSON.parse(text.replace(/```json|```/g, '').trim());
 
     // Save analysis to DB

@@ -1,17 +1,17 @@
 const express = require('express');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const Groq = require('groq-sdk');
 const Chat = require('../models/Chat');
 const { verifyToken } = require('../middleware/auth');
 
 const router = express.Router();
+
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 function buildChatTitle(message) {
   return String(message || 'New Chat').trim().slice(0, 60) || 'New Chat';
 }
 
 router.post('/message', verifyToken, async (req, res) => {
-  const genAI = new GoogleGenerativeAI('process.env.GEMINI_API_KEY');
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-lite' });
   let chat;
   let assistantResponse = '';
 
@@ -67,13 +67,24 @@ router.post('/message', verifyToken, async (req, res) => {
     res.write(`data: ${JSON.stringify({ type: 'meta', chatId: String(chat._id), title: chat.title })}\n\n`);
 
     const systemPrompt = `You are PrepAI, an expert AI career coach for software engineering placements. Help with: DSA prep, resume tips, interview strategies, company-specific prep, behavioral answers (STAR format), salary negotiation, career advice. Be concise and practical. User context: ${contextSummary}`;
-    const formattedHistory = conversationHistory.map(h => `${h.role === 'user' ? 'User' : 'Assistant'}: ${h.content}`).join('\n');
-    const prompt = `${systemPrompt}\n\nConversation History:\n${formattedHistory}\n\nUser: ${message}\nAssistant:`;
 
-    const resultStream = await model.generateContentStream(prompt);
+    const groqMessages = [
+      { role: 'system', content: systemPrompt },
+      ...conversationHistory.map(h => ({
+        role: h.role === 'assistant' ? 'assistant' : 'user',
+        content: h.content
+      })),
+      { role: 'user', content: message }
+    ];
 
-    for await (const chunk of resultStream.stream) {
-      const token = chunk.text();
+    const stream = await groq.chat.completions.create({
+      messages: groqMessages,
+      model: 'llama-3.3-70b-versatile',
+      stream: true
+    });
+
+    for await (const chunk of stream) {
+      const token = chunk.choices[0]?.delta?.content || '';
       if (!token) {
         continue;
       }

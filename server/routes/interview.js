@@ -1,7 +1,7 @@
 const fs = require('fs');
 const express = require('express');
 const pdfParse = require('pdf-parse');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const Groq = require('groq-sdk');
 const Interview = require('../models/Interview');
 const Resume = require('../models/Resume');
 const User = require('../models/User');
@@ -10,6 +10,8 @@ const { verifyToken } = require('../middleware/auth');
 const router = express.Router();
 const VALID_DIFFICULTIES = ['easy', 'medium', 'hard'];
 const VALID_TYPES = ['behavioral', 'technical', 'hr'];
+
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 function normaliseDifficulty(value) {
   return VALID_DIFFICULTIES.includes(value) ? value : 'medium';
@@ -56,10 +58,7 @@ async function getLatestResumeText(userId) {
 }
 
 async function generateQuestions({ resumeText, company, role, difficulty }) {
-  const genAI = new GoogleGenerativeAI('process.env.GEMINI_API_KEY');
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-lite' });
-
-  const prompt = `Generate 5 realistic interview questions for a ${role} position at ${company}. Base them on this resume. Mix behavioral and technical. Return JSON array of objects with: question, type (behavioral/technical/hr), difficulty (easy/medium/hard).
+  const prompt = `Generate 5 realistic interview questions for a ${role} position at ${company}. Base them on this resume. Mix behavioral and technical. Return ONLY valid JSON array of objects with: question, type (behavioral/technical/hr), difficulty (easy/medium/hard). Do not include any text outside the JSON array.
   
 Role: ${role}
 Company: ${company}
@@ -67,13 +66,17 @@ Difficulty: ${difficulty}
 Resume:
 ${resumeText || 'No resume provided.'}`;
 
-  const result = await model.generateContent(prompt);
-  const text = result.response.text();
+  const completion = await groq.chat.completions.create({
+    messages: [{ role: 'user', content: prompt }],
+    model: 'llama-3.3-70b-versatile'
+  });
+
+  const text = completion.choices[0].message.content;
   const parsed = parseJsonContent(text.replace(/```json|```/g, '').trim() || '[]');
   const questions = Array.isArray(parsed) ? parsed : parsed.questions;
 
   if (!Array.isArray(questions)) {
-    throw new Error('Gemini did not return a valid questions array');
+    throw new Error('AI did not return a valid questions array');
   }
 
   return questions.slice(0, 5).map((item) => ({
@@ -84,16 +87,18 @@ ${resumeText || 'No resume provided.'}`;
 }
 
 async function evaluateAnswer({ question, answer, role }) {
-  const genAI = new GoogleGenerativeAI('process.env.GEMINI_API_KEY');
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-lite' });
-
-  const prompt = `Evaluate the answer for a ${role} role. Return only valid JSON with keys: score, feedback, better_answer_hint, keywords_used, keywords_missed.
+  const prompt = `Evaluate the answer for a ${role} role. Return ONLY valid JSON with keys: score, feedback, better_answer_hint, keywords_used, keywords_missed. Do not include any text outside the JSON.
   
 Question: ${question}
 Answer: ${answer}`;
 
-  const result = await model.generateContent(prompt);
-  const text = result.response.text();
+  const completion = await groq.chat.completions.create({
+    messages: [{ role: 'user', content: prompt }],
+    model: 'llama-3.3-70b-versatile',
+    response_format: { type: 'json_object' }
+  });
+
+  const text = completion.choices[0].message.content;
   const parsed = parseJsonContent(text.replace(/```json|```/g, '').trim() || '{}');
 
   return {

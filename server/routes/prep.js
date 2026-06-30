@@ -1,8 +1,10 @@
 const express = require('express');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const Groq = require('groq-sdk');
 const { verifyToken } = require('../middleware/auth');
 
 const router = express.Router();
+
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 function parseJsonContent(content) {
   try {
@@ -18,8 +20,6 @@ function parseJsonContent(content) {
 }
 
 router.post('/company', verifyToken, async (req, res) => {
-  const genAI = new GoogleGenerativeAI('process.env.GEMINI_API_KEY');
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-lite' });
   try {
     const company = String(req.body.company || '').trim();
     const role = String(req.body.role || '').trim();
@@ -28,12 +28,17 @@ router.post('/company', verifyToken, async (req, res) => {
       return res.status(400).json({ message: 'company and role are required' });
     }
 
-    const prompt = `You are a placement expert. Return ONLY JSON: { overview: string, interview_rounds: [ { round: string, description: string, tips: string[] } ], commonly_asked_topics: string[], recommended_resources: [ { title: string, url: string, type: 'video'|'article'|'practice' } ], difficulty: 'easy'|'medium'|'hard', avg_ctc: string, preparation_time: string, insider_tips: string[] }
+    const prompt = `You are a placement expert. Return ONLY JSON: { overview: string, interview_rounds: [ { round: string, description: string, tips: string[] } ], commonly_asked_topics: string[], recommended_resources: [ { title: string, url: string, type: 'video'|'article'|'practice' } ], difficulty: 'easy'|'medium'|'hard', avg_ctc: string, preparation_time: string, insider_tips: string[] }. Do not include any text outside the JSON.
     
 Give complete interview preparation guide for ${role} at ${company}`;
 
-    const result = await model.generateContent(prompt);
-    const text = result.response.text();
+    const completion = await groq.chat.completions.create({
+      messages: [{ role: 'user', content: prompt }],
+      model: 'llama-3.3-70b-versatile',
+      response_format: { type: 'json_object' }
+    });
+
+    const text = completion.choices[0].message.content;
     const parsed = parseJsonContent(text.replace(/```json|```/g, '').trim() || '{}');
 
     res.json({
@@ -53,8 +58,6 @@ Give complete interview preparation guide for ${role} at ${company}`;
 });
 
 router.post('/dsa-recommendations', verifyToken, async (req, res) => {
-  const genAI = new GoogleGenerativeAI('process.env.GEMINI_API_KEY');
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-lite' });
   try {
     const weakTopics = Array.isArray(req.body.weakTopics) ? req.body.weakTopics.filter(Boolean) : [];
     const targetCompany = String(req.body.targetCompany || '').trim();
@@ -64,12 +67,17 @@ router.post('/dsa-recommendations', verifyToken, async (req, res) => {
       return res.status(400).json({ message: 'targetCompany and daysAvailable are required' });
     }
 
-    const prompt = `You are a DSA expert. Return ONLY JSON: { study_plan: [ { day: number, topic: string, problems: [ { name: string, difficulty: string, leetcode_number: number, why_important: string } ] } ], priority_topics: string[], daily_target: number }
+    const prompt = `You are a DSA expert. Return ONLY JSON: { study_plan: [ { day: number, topic: string, problems: [ { name: string, difficulty: string, leetcode_number: number, why_important: string } ] } ], priority_topics: string[], daily_target: number }. Do not include any text outside the JSON.
     
 Create ${daysAvailable}-day DSA study plan for ${targetCompany}. Weak areas: ${weakTopics.join(', ')}`;
 
-    const result = await model.generateContent(prompt);
-    const text = result.response.text();
+    const completion = await groq.chat.completions.create({
+      messages: [{ role: 'user', content: prompt }],
+      model: 'llama-3.3-70b-versatile',
+      response_format: { type: 'json_object' }
+    });
+
+    const text = completion.choices[0].message.content;
     const parsed = parseJsonContent(text.replace(/```json|```/g, '').trim() || '{}');
 
     res.json({
