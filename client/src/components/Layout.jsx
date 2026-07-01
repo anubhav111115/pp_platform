@@ -6,7 +6,7 @@ function Layout({ children, title }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50 dark:bg-slate-900 transition-colors duration-200">
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div

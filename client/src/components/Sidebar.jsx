@@ -39,18 +39,18 @@ function Sidebar({ isOpen, setIsOpen }) {
     <>
       {/* Mobile sidebar */}
       <div
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 transform transition-transform duration-300 ease-in-out lg:hidden ${isOpen ? 'translate-x-0' : '-translate-x-full'
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-slate-800 border-r border-gray-200 dark:border-slate-700 transform transition-transform duration-300 ease-in-out lg:hidden ${isOpen ? 'translate-x-0' : '-translate-x-full'
           }`}
       >
-        <div className="flex items-center justify-between p-4 border-b border-gray-200">
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-slate-700">
           <div className="flex items-center gap-2">
             <h1 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
               PrepAI
             </h1>
 
           </div>
-          <button onClick={() => setIsOpen(false)} className="p-2 hover:bg-gray-100 rounded-lg">
-            <X className="w-5 h-5 text-gray-600" />
+          <button onClick={() => setIsOpen(false)} className="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg">
+            <X className="w-5 h-5 text-gray-600 dark:text-gray-400" />
           </button>
         </div>
 
@@ -64,8 +64,8 @@ function Sidebar({ isOpen, setIsOpen }) {
                 to={item.path}
                 onClick={() => setIsOpen(false)}
                 className={`flex items-center gap-3 px-4 py-3 mx-2 rounded-lg transition-colors ${isActive
-                    ? 'bg-indigo-50 text-indigo-700 border-l-4 border-indigo-600'
-                    : 'text-gray-700 hover:bg-gray-100'
+                    ? 'bg-indigo-50 text-indigo-700 border-l-4 border-indigo-600 dark:bg-indigo-950/30 dark:text-indigo-400 dark:border-indigo-500'
+                    : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-slate-700'
                   }`}
               >
                 <Icon className="w-5 h-5" />
@@ -75,18 +75,18 @@ function Sidebar({ isOpen, setIsOpen }) {
           })}
         </nav>
 
-        <div className="p-4 border-t border-gray-200">
+        <div className="p-4 border-t border-gray-200 dark:border-slate-700">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-indigo-500 flex items-center justify-center text-white font-semibold">
               {user?.name?.charAt(0).toUpperCase() || 'U'}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-medium text-gray-900 truncate">{user?.name || 'User'}</p>
-              <p className="text-sm text-gray-500 truncate">{user?.email || ''}</p>
+              <p className="font-medium text-gray-900 dark:text-gray-100 truncate">{user?.name || 'User'}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{user?.email || ''}</p>
             </div>
             <button
               onClick={logout}
-              className="p-2 hover:bg-gray-100 rounded-lg text-gray-600"
+              className="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg text-gray-600 dark:text-gray-400"
               title="Logout"
             >
               <LogOut className="w-5 h-5" />
@@ -96,13 +96,13 @@ function Sidebar({ isOpen, setIsOpen }) {
       </div>
 
       {/* Desktop sidebar */}
-      <div className="hidden lg:flex flex-col w-64 bg-white border-r border-gray-200 h-full">
+      <div className="hidden lg:flex flex-col w-64 bg-white dark:bg-slate-800 border-r border-gray-200 dark:border-slate-700 h-full">
         {/* Logo */}
-        <div className="flex items-center gap-2 p-6 border-b border-gray-200">
+        <div className="flex items-center gap-2 p-6 border-b border-gray-200 dark:border-slate-700">
           <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
             PrepAI
           </h1>
-          <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">v1.0</span>
+          <span className="text-xs bg-purple-100 dark:bg-purple-950/40 text-purple-700 dark:text-purple-400 px-2 py-0.5 rounded-full">v1.0</span>
         </div>
 
         {/* Navigation */}
@@ -115,8 +115,8 @@ function Sidebar({ isOpen, setIsOpen }) {
                 key={item.path}
                 to={item.path}
                 className={`flex items-center gap-3 px-4 py-3 mx-2 rounded-lg transition-colors ${isActive
-                    ? 'bg-indigo-50 text-indigo-700 border-l-4 border-indigo-600'
-                    : 'text-gray-700 hover:bg-gray-100'
+                    ? 'bg-indigo-50 text-indigo-700 border-l-4 border-indigo-600 dark:bg-indigo-950/30 dark:text-indigo-400 dark:border-indigo-500'
+                    : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-slate-700'
                   }`}
               >
                 <Icon className="w-5 h-5" />
@@ -127,42 +127,42 @@ function Sidebar({ isOpen, setIsOpen }) {
         </nav>
 
         {/* User section */}
-        <div className="p-4 border-t border-gray-200">
+        <div className="p-4 border-t border-gray-200 dark:border-slate-700">
           <div className="relative">
             <button
               onClick={() => setShowUserMenu(!showUserMenu)}
-              className="flex items-center gap-3 w-full p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              className="flex items-center gap-3 w-full p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
             >
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-indigo-500 flex items-center justify-center text-white font-semibold">
                 {user?.name?.charAt(0).toUpperCase() || 'U'}
               </div>
               <div className="flex-1 min-w-0 text-left">
-                <p className="font-medium text-gray-900 truncate">{user?.name || 'User'}</p>
-                <p className="text-sm text-gray-500 truncate">{user?.email || ''}</p>
+                <p className="font-medium text-gray-900 dark:text-gray-100 truncate">{user?.name || 'User'}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{user?.email || ''}</p>
               </div>
-              <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${showUserMenu ? 'rotate-180' : ''}`} />
+              <ChevronDown className={`w-4 h-4 text-gray-500 dark:text-gray-400 transition-transform ${showUserMenu ? 'rotate-180' : ''}`} />
             </button>
 
             {/* Dropdown menu */}
             {showUserMenu && (
-              <div className="absolute bottom-full left-0 right-0 mb-2 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
+              <div className="absolute bottom-full left-0 right-0 mb-2 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg shadow-lg overflow-hidden">
                 <Link
                   to="/profile"
-                  className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-gray-700"
+                  className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-300"
                 >
                   <User className="w-4 h-4" />
                   <span>Profile</span>
                 </Link>
                 <Link
                   to="/settings"
-                  className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-gray-700"
+                  className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-300"
                 >
                   <Menu className="w-4 h-4" />
                   <span>Settings</span>
                 </Link>
                 <button
                   onClick={logout}
-                  className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-red-600 w-full text-left"
+                  className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 dark:hover:bg-slate-700 text-red-600 dark:text-red-400 w-full text-left"
                 >
                   <LogOut className="w-4 h-4" />
                   <span>Logout</span>

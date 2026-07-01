@@ -49,36 +49,36 @@ function Dashboard() {
       value: user?.dsa_solved || 0,
       icon: Code,
       color: 'green',
-      bgColor: 'bg-green-50',
-      iconColor: 'text-green-600',
-      textColor: 'text-green-700'
+      bgColor: 'bg-green-50 dark:bg-green-950/20',
+      iconColor: 'text-green-600 dark:text-green-400',
+      textColor: 'text-green-700 dark:text-green-300'
     },
     {
       label: 'Mock Interviews',
       value: user?.interviews_done || 0,
       icon: Mic,
       color: 'blue',
-      bgColor: 'bg-blue-50',
-      iconColor: 'text-blue-600',
-      textColor: 'text-blue-700'
+      bgColor: 'bg-blue-50 dark:bg-blue-950/20',
+      iconColor: 'text-blue-600 dark:text-blue-400',
+      textColor: 'text-blue-700 dark:text-blue-300'
     },
     {
       label: 'Jobs Applied',
       value: user?.jobs_applied || 0,
       icon: Briefcase,
       color: 'orange',
-      bgColor: 'bg-orange-50',
-      iconColor: 'text-orange-600',
-      textColor: 'text-orange-700'
+      bgColor: 'bg-orange-50 dark:bg-orange-950/20',
+      iconColor: 'text-orange-600 dark:text-orange-400',
+      textColor: 'text-orange-700 dark:text-orange-300'
     },
     {
       label: 'Resume Score',
       value: `${user?.resumeScore || 0}/100`,
       icon: FileText,
       color: 'purple',
-      bgColor: 'bg-purple-50',
-      iconColor: 'text-purple-600',
-      textColor: 'text-purple-700'
+      bgColor: 'bg-purple-50 dark:bg-purple-950/20',
+      iconColor: 'text-purple-600 dark:text-purple-400',
+      textColor: 'text-purple-700 dark:text-purple-300'
     },
   ];
 
@@ -111,10 +111,10 @@ function Dashboard() {
       <div className="max-w-7xl mx-auto">
         {/* Greeting */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-slate-100 mb-2">
             {greeting}, {user?.name?.split(' ')[0] || 'User'}!
           </h1>
-          <p className="text-gray-600">{currentDate}</p>
+          <p className="text-gray-600 dark:text-slate-400">{currentDate}</p>
         </div>
 
         {/* Stats Grid */}
@@ -122,13 +122,13 @@ function Dashboard() {
           {statCards.map((card) => {
             const Icon = card.icon;
             return (
-              <div key={card.label} className={`${card.bgColor} rounded-xl p-6 border border-gray-100`}>
+              <div key={card.label} className={`${card.bgColor} rounded-xl p-6 border border-gray-100 dark:border-slate-800/60`}>
                 <div className="flex items-center justify-between mb-4">
-                  <div className={`${card.iconColor} bg-white rounded-lg p-3`}>
+                  <div className={`${card.iconColor} bg-white dark:bg-slate-800 rounded-lg p-3`}>
                     <Icon className="w-6 h-6" />
                   </div>
                 </div>
-                <p className="text-3xl font-bold text-gray-900 mb-1">{card.value}</p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-slate-100 mb-1">{card.value}</p>
                 <p className={`${card.textColor} font-medium`}>{card.label}</p>
               </div>
             );
@@ -137,7 +137,7 @@ function Dashboard() {
 
         {/* Quick Actions */}
         <div className="mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h2>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-slate-100 mb-4">Quick Actions</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {quickActions.map((action) => {
               const Icon = action.icon;
@@ -145,16 +145,16 @@ function Dashboard() {
                 <button
                   key={action.label}
                   onClick={action.onClick}
-                  className="bg-white rounded-xl p-6 border border-gray-200 hover:border-indigo-300 hover:shadow-md transition-all text-left group"
+                  className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-gray-200 dark:border-slate-700 hover:border-indigo-300 dark:hover:border-indigo-500 hover:shadow-md transition-all text-left group"
                 >
                   <div className={`bg-gradient-to-br ${action.color} rounded-lg p-3 mb-4 w-fit`}>
                     <Icon className="w-6 h-6 text-white" />
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-indigo-600 transition-colors">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100 mb-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                     {action.label}
                   </h3>
-                  <p className="text-gray-600 text-sm">{action.description}</p>
-                  <ArrowRight className="w-4 h-4 text-gray-400 mt-3 group-hover:text-indigo-600 group-hover:translate-x-1 transition-all" />
+                  <p className="text-gray-600 dark:text-slate-400 text-sm">{action.description}</p>
+                  <ArrowRight className="w-4 h-4 text-gray-400 dark:text-slate-500 mt-3 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 group-hover:translate-x-1 transition-all" />
                 </button>
               );
             })}
@@ -163,12 +163,12 @@ function Dashboard() {
 
         {/* Recent Activity */}
         <div className="mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Recent Activity</h2>
-          <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-slate-100 mb-4">Recent Activity</h2>
+          <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden">
             {recentActivities.map((activity) => (
               <div
                 key={activity.id}
-                className="flex items-center justify-between px-6 py-4 border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors"
+                className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-slate-700/50 last:border-b-0 hover:bg-gray-50 dark:hover:bg-slate-700/30 transition-colors"
               >
                 <div className="flex items-center gap-4">
                   <div className={`w-2 h-2 rounded-full ${
@@ -176,9 +176,9 @@ function Dashboard() {
                     activity.type === 'resume' ? 'bg-purple-500' :
                     activity.type === 'dsa' ? 'bg-green-500' : 'bg-orange-500'
                   }`} />
-                  <span className="text-gray-900">{activity.action}</span>
+                  <span className="text-gray-900 dark:text-slate-300">{activity.action}</span>
                 </div>
-                <span className="text-sm text-gray-500">{activity.time}</span>
+                <span className="text-sm text-gray-500 dark:text-slate-400">{activity.time}</span>
               </div>
             ))}
           </div>

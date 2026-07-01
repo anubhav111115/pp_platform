@@ -60,22 +60,22 @@ function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center font-sans">
-      <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 transition-colors duration-200 flex items-center justify-center font-sans">
+      <div className="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-xl border border-gray-100 dark:border-slate-700 w-full max-w-md">
         {/* Logo and Tagline */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent mb-2">
             PrepAI
           </h1>
-          <p className="text-gray-500 text-sm">Your AI-powered placement partner</p>
+          <p className="text-gray-500 dark:text-slate-400 text-sm">Your AI-powered placement partner</p>
         </div>
 
         {/* Tabs */}
-        <div className="flex mb-6 bg-gray-100 rounded-lg p-1">
+        <div className="flex mb-6 bg-gray-100 dark:bg-slate-900 rounded-lg p-1">
           <button
             onClick={() => setIsLogin(true)}
             className={`flex-1 py-2 rounded-md transition-all ${
-              isLogin ? 'bg-white shadow text-indigo-600 font-medium' : 'text-gray-500'
+              isLogin ? 'bg-white shadow text-indigo-600 font-medium dark:bg-slate-800 dark:text-indigo-400 dark:shadow-none' : 'text-gray-500 dark:text-slate-400'
             }`}
           >
             Login
@@ -83,7 +83,7 @@ function Login() {
           <button
             onClick={() => setIsLogin(false)}
             className={`flex-1 py-2 rounded-md transition-all ${
-              !isLogin ? 'bg-white shadow text-indigo-600 font-medium' : 'text-gray-500'
+              !isLogin ? 'bg-white shadow text-indigo-600 font-medium dark:bg-slate-800 dark:text-indigo-400 dark:shadow-none' : 'text-gray-500 dark:text-slate-400'
             }`}
           >
             Sign Up
@@ -92,7 +92,7 @@ function Login() {
 
         {/* Error Message */}
         {error && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
+          <div className="mb-4 p-3 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/30 rounded-lg text-red-600 dark:text-red-400 text-sm">
             {error}
           </div>
         )}
@@ -100,7 +100,7 @@ function Login() {
         {/* Google Button */}
         <button
           onClick={handleGoogleLogin}
-          className="w-full flex items-center justify-center gap-3 bg-white border border-gray-300 py-3 rounded-lg hover:bg-gray-50 transition mb-4"
+          className="w-full flex items-center justify-center gap-3 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-600 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700/50 transition mb-4"
         >
           <svg className="w-5 h-5" viewBox="0 0 24 24">
             <path
@@ -120,56 +120,56 @@ function Login() {
               d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
             />
           </svg>
-          <span className="text-gray-700 font-medium">Continue with Google</span>
+          <span className="text-gray-700 dark:text-slate-300 font-medium">Continue with Google</span>
         </button>
 
         {/* Divider */}
         <div className="flex items-center mb-4">
-          <div className="flex-1 border-t border-gray-300"></div>
-          <span className="px-4 text-gray-500 text-sm">or</span>
-          <div className="flex-1 border-t border-gray-300"></div>
+          <div className="flex-1 border-t border-gray-300 dark:border-slate-700"></div>
+          <span className="px-4 text-gray-500 dark:text-slate-400 text-sm">or</span>
+          <div className="flex-1 border-t border-gray-300 dark:border-slate-700"></div>
         </div>
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           {!isLogin && (
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-slate-500 w-5 h-5" />
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Full Name"
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-3 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-lg text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 required={!isLogin}
               />
             </div>
           )}
           <div className="relative">
-            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-slate-500 w-5 h-5" />
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Email"
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-3 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-lg text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               required
             />
           </div>
           <div className="relative">
-            <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-slate-500 w-5 h-5" />
             <input
               type={showPassword ? 'text' : 'password'}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Password"
-              className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              className="w-full pl-10 pr-12 py-3 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-lg text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               required
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300"
             >
               {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
             </button>
