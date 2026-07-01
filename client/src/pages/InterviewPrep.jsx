@@ -8,7 +8,7 @@ import {
   Clock3,
   Loader2,
   Search,
-  Star,
+  Sparkles,
   TrendingUp
 } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -175,7 +175,7 @@ function InterviewPrep() {
               </>
             ) : (
               <>
-                <Star className="h-5 w-5" />
+                <Sparkles className="h-5 w-5" />
                 Get Prep Guide
               </>
             )}

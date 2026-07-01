@@ -10,13 +10,13 @@ import {
 import {
   Briefcase,
   GripVertical,
+  Loader2,
   Plus,
   Trash2
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Layout from '../components/Layout';
 import { useAuth } from '../context/AuthContext';
-import { CardSkeleton } from '../components/Skeleton';
 
 const columns = [
   { id: 'applied', label: 'Applied', color: 'border-blue-200 bg-blue-50', badge: 'bg-blue-100 text-blue-700' },
@@ -277,18 +277,8 @@ function JobTracker() {
   if (loading) {
     return (
       <Layout title="Job Tracker">
-        <div className="mx-auto max-w-7xl space-y-6">
-          <div className="h-32 rounded-2xl bg-gray-200 animate-pulse" />
-          <div className="grid gap-4 md:grid-cols-4">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-24 rounded-2xl bg-gray-200 animate-pulse" />
-            ))}
-          </div>
-          <div className="grid gap-4 xl:grid-cols-5">
-            {columns.map((column) => (
-              <div key={column.id} className="h-[460px] rounded-2xl bg-gray-200 animate-pulse" />
-            ))}
-          </div>
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="h-12 w-12 animate-spin text-indigo-600" />
         </div>
       </Layout>
     );
@@ -305,70 +295,51 @@ function JobTracker() {
           </p>
         </div>
 
-        {jobs.length === 0 ? (
-          <div className="rounded-2xl border border-gray-200 bg-white p-12 text-center shadow-sm">
-            <Briefcase className="mx-auto mb-4 h-16 w-16 text-gray-300" />
-            <h2 className="text-2xl font-semibold text-gray-900">No applications yet</h2>
-            <p className="mt-2 text-gray-600">Add your first job application to start tracking your progress.</p>
-            <button
-              type="button"
-              onClick={() => setShowModal(true)}
-              className="mt-6 rounded-xl bg-indigo-600 px-6 py-3 font-semibold text-white transition hover:bg-indigo-700"
-            >
-              Add Your First Application
-            </button>
+        <div className="grid gap-4 md:grid-cols-4">
+          <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+            <p className="text-sm text-gray-500">Total</p>
+            <p className="mt-2 text-3xl font-bold text-gray-900">{stats.total}</p>
           </div>
-        ) : (
-          <>
-            <div className="grid gap-4 md:grid-cols-4">
-              <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-                <p className="text-sm text-gray-500">Total</p>
-                <p className="mt-2 text-3xl font-bold text-gray-900">{stats.total}</p>
-              </div>
-              <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-                <p className="text-sm text-gray-500">Interviews</p>
-                <p className="mt-2 text-3xl font-bold text-gray-900">{stats.interviews}</p>
-              </div>
-              <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-                <p className="text-sm text-gray-500">Offers</p>
-                <p className="mt-2 text-3xl font-bold text-gray-900">{stats.offers}</p>
-              </div>
-              <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-                <p className="text-sm text-gray-500">Response rate</p>
-                <p className="mt-2 text-3xl font-bold text-gray-900">{stats.responseRate}%</p>
-              </div>
-            </div>
+          <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+            <p className="text-sm text-gray-500">Interviews</p>
+            <p className="mt-2 text-3xl font-bold text-gray-900">{stats.interviews}</p>
+          </div>
+          <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+            <p className="text-sm text-gray-500">Offers</p>
+            <p className="mt-2 text-3xl font-bold text-gray-900">{stats.offers}</p>
+          </div>
+          <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+            <p className="text-sm text-gray-500">Response rate</p>
+            <p className="mt-2 text-3xl font-bold text-gray-900">{stats.responseRate}%</p>
+          </div>
+        </div>
 
-            <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
-              <div className="grid gap-4 xl:grid-cols-5">
-                {columns.map((column) => {
-                  const columnJobs = jobs
-                    .filter((job) => job.status === column.id)
-                    .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+        <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
+          <div className="grid gap-4 xl:grid-cols-5">
+            {columns.map((column) => {
+              const columnJobs = jobs
+                .filter((job) => job.status === column.id)
+                .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
 
-                  return (
-                    <DroppableColumn key={column.id} column={column} count={columnJobs.length}>
-                      {columnJobs.map((job) => (
-                        <JobCard key={job._id} job={job} onDelete={handleDeleteJob} />
-                      ))}
-                    </DroppableColumn>
-                  );
-                })}
-              </div>
-            </DndContext>
-          </>
-        )}
+              return (
+                <DroppableColumn key={column.id} column={column} count={columnJobs.length}>
+                  {columnJobs.map((job) => (
+                    <JobCard key={job._id} job={job} onDelete={handleDeleteJob} />
+                  ))}
+                </DroppableColumn>
+              );
+            })}
+          </div>
+        </DndContext>
 
-        {jobs.length > 0 && (
-          <button
-            type="button"
-            onClick={() => setShowModal(true)}
-            className="fixed bottom-8 right-8 inline-flex items-center gap-2 rounded-full bg-indigo-600 px-5 py-4 font-semibold text-white shadow-lg transition hover:bg-indigo-700"
-          >
-            <Plus className="h-5 w-5" />
-            Add Job
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={() => setShowModal(true)}
+          className="fixed bottom-8 right-8 inline-flex items-center gap-2 rounded-full bg-indigo-600 px-5 py-4 font-semibold text-white shadow-lg transition hover:bg-indigo-700"
+        >
+          <Plus className="h-5 w-5" />
+          Add Job
+        </button>
 
         {showModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">

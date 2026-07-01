@@ -1,5 +1,4 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import ErrorBoundary from './components/ErrorBoundary';
 import Home from './pages/Home';
@@ -14,12 +13,13 @@ import DSASheet from './pages/DSASheet';
 import JobTracker from './pages/JobTracker';
 import Notes from './pages/Notes';
 import AIAssistant from './pages/AIAssistant';
+import Profile from './pages/Profile';
+import Settings from './pages/Settings';
 
 function App() {
   return (
     <ErrorBoundary>
-      <AuthProvider>
-        <Router>
+      <Router>
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
@@ -96,11 +96,26 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/settings"
+              element={
+                <ProtectedRoute>
+                  <Settings />
+                </ProtectedRoute>
+              }
+            />
           </Routes>
         </Router>
-      </AuthProvider>
-    </ErrorBoundary>
-  );
-}
+      </ErrorBoundary>
+    );
+  }
 
 export default App;

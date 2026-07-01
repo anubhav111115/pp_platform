@@ -5,11 +5,11 @@ import {
   Calendar,
   ChevronDown,
   ChevronUp,
+  Loader2,
   TrendingUp
 } from 'lucide-react';
 import Layout from '../components/Layout';
 import { useAuth } from '../context/AuthContext';
-import { CardSkeleton } from '../components/Skeleton';
 
 function InterviewHistory() {
   const { token } = useAuth();
@@ -94,13 +94,8 @@ function InterviewHistory() {
   if (loading) {
     return (
       <Layout title="Interview History">
-        <div className="mx-auto max-w-5xl space-y-6">
-          <div className="h-32 rounded-2xl bg-gray-200 animate-pulse" />
-          <div className="space-y-4">
-            {[...Array(3)].map((_, i) => (
-              <CardSkeleton key={i} />
-            ))}
-          </div>
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-12 w-12 animate-spin text-indigo-600" />
         </div>
       </Layout>
     );

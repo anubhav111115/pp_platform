@@ -11,6 +11,8 @@ const userSchema = new mongoose.Schema({
   dsa_solved: { type: Number, default: 0 },
   interviews_done: { type: Number, default: 0 },
   jobs_applied: { type: Number, default: 0 },
+  targetCompanies: [{ type: String }],
+  targetRole: { type: String },
   createdAt: { type: Date, default: Date.now },
 });
 
